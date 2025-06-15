@@ -3,11 +3,11 @@ namespace ArraySum.SumStrategies;
 /// <summary>
 /// Класс для наивного чтения и подсчета суммы чисел из бинарного файла
 /// </summary>
-public class SimpleBufferReader : ISortStrategy
+public class SimpleBufferReader : SortStrategy
 {
     private readonly string _fileName;
 
-    public SimpleBufferReader(string fileName)
+    public SimpleBufferReader(string fileName) : base(fileName)
     {
         _fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
         if (!File.Exists(fileName))
@@ -16,13 +16,13 @@ public class SimpleBufferReader : ISortStrategy
         }
     }
 
-    public string Description => "Наивная стратегия, с отдельным чтением каждого элемента";
+    public override string Description => "Наивная стратегия, с отдельным чтением каждого элемента";
 
     /// <summary>
     /// Выполняет чтение файла и подсчет суммы всех чисел
     /// </summary>
     /// <returns>Сумма всех чисел в файле</returns>
-    public Task<long> Run(CancellationToken token = default)
+    public override Task<long> Run(CancellationToken token = default)
     {
         var sum = 0L;
 

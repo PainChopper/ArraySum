@@ -2,14 +2,16 @@ using System.Diagnostics;
 using ArraySum.SumStrategies;
 
 
-const long ExpectedSum = 500_490_436_924;
+//const long ExpectedSum = 500_490_436_924;
 
 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "../../../numbers.data");
 
-var strategies = new ISortStrategy[]
+var strategies = new SortStrategy[]
 {
     // new SimpleBufferReader(filePath),
-    new ThreadPoolStackBuffer(filePath, 100_000_000, Environment.ProcessorCount)
+    new ThreadPoolStackBuffer(filePath, 100_000_000, Environment.ProcessorCount),
+    new ThreadPoolArrayPoolBufferAsyncWorker(filePath, 100_000_000, Environment.ProcessorCount),    
+    new ThreadPoolArrayPoolBufferSyncWorker(filePath, 100_000_000, Environment.ProcessorCount)
 };
 
 

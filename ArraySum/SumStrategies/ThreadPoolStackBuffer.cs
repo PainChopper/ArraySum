@@ -2,53 +2,30 @@ using System.Runtime.InteropServices;
 
 namespace ArraySum.SumStrategies;
 
-public class ThreadPoolStackBuffer : ISortStrategy
+public class ThreadPoolStackBuffer : SortStrategy
 {
-    private const int ElementSize = sizeof(int);
     private const int AvailableStackSize = 1_048_576 / 2; // 50% от размера стека процесса можно потратить на буферы
     
-    private readonly string _fileName;
-    private readonly int _chunkSize;
-    private readonly int _numberOfWorkers;
-    private readonly long _arrayLength;
     private readonly int _readerStackBufferSize;
     
     private long _arrayPosition;
 
-    public ThreadPoolStackBuffer(string fileName, int chunkSize, int numberOfWorkers)
+    public ThreadPoolStackBuffer(string fileName, int chunkSize, int numberOfWorkers)  : base(fileName, chunkSize, numberOfWorkers)
     { 
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(chunkSize);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numberOfWorkers);
-
-        _fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-        if (!File.Exists(fileName))
-        {
-            throw new FileNotFoundException("Файл не найден", fileName);
-        }
-        var fileSize = new FileInfo(fileName).Length;
-        if (fileSize % ElementSize != 0)
-        {
-            throw new ArgumentException("Размер файла не кратен размеру элемента", nameof(fileName));
-        }
-
-        _arrayLength = fileSize / ElementSize;
-        _chunkSize = chunkSize;
-        _numberOfWorkers = numberOfWorkers;
-
-        _readerStackBufferSize = (AvailableStackSize / _numberOfWorkers / ElementSize) * ElementSize;
+        _readerStackBufferSize = (AvailableStackSize / NumberOfWorkers / ElementSize) * ElementSize;
     }
 
-    public string Description => "Стратегия буфером на стеке";
+    public override string Description => "Стратегия c буфером на стеке";
 
-    public async Task<long> Run(CancellationToken token = default)
+    public override async Task<long> Run(CancellationToken token = default)
     {
         // Сбрасываем позицию перед каждым запуском
         _arrayPosition = 0;
         
-        var workersTotalCount = (_arrayLength + _chunkSize - 1) / _chunkSize;
+        var workersTotalCount = (ArrayLength + ChunkSize - 1) / ChunkSize;
         var tasks = new Task<long>[workersTotalCount];
 
-        var semaphore = new SemaphoreSlim(_numberOfWorkers, _numberOfWorkers);
+        var semaphore = new SemaphoreSlim(NumberOfWorkers, NumberOfWorkers);
         
         for (var i = 0; i < workersTotalCount; i++)
         {
@@ -77,19 +54,19 @@ public class ThreadPoolStackBuffer : ISortStrategy
     {
         token.ThrowIfCancellationRequested();
 
-        var startArray = Interlocked.Add(ref _arrayPosition, _chunkSize) - _chunkSize;
-        if(startArray >= _arrayLength)
+        var startArray = Interlocked.Add(ref _arrayPosition, ChunkSize) - ChunkSize;
+        if(startArray >= ArrayLength)
         {
             return 0L;
         }
         
-        var count = Math.Min(_chunkSize, _arrayLength - startArray);
+        var count = Math.Min(ChunkSize, ArrayLength - startArray);
         var begin = startArray * ElementSize;
         var end = begin + count * ElementSize;
         
         Span<byte> buffer = stackalloc byte[_readerStackBufferSize];
         
-        using var reader = new BinaryReader(File.Open(_fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
+        using var reader = new BinaryReader(File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read));
         reader.BaseStream.Position = begin;
 
         var sum = 0L;
