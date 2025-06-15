@@ -4,3 +4,11 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 *.xml
+
+# JetBrains Rider / IDEA
+.idea/
+**/.idea/
+*.DotSettings.user
+*.suo
+*.user
+.vs/
