@@ -20,32 +20,41 @@ public class ThreadPoolArrayPoolBufferAsyncWorker : SortStrategy
         // Сбрасываем позицию перед каждым запуском
         _arrayPosition = 0;
         
-        var workersTotalCount = (ArrayLength + ChunkSize - 1) / ChunkSize;
-        var tasks = new Task<long>[workersTotalCount];
+        var workersTotalCount = (int)(ArrayLength + ChunkSize - 1) / ChunkSize;
+        // var tasks = new Task<long>[workersTotalCount];
 
         var semaphore = new SemaphoreSlim(NumberOfWorkers, NumberOfWorkers);
         
-        for (var i = 0; i < workersTotalCount; i++)
-        {
-            tasks[i] = Task.Run(
-                async () =>
+        var tasks = Enumerable.Range(0, workersTotalCount)
+            .Select(async _ => 
+            {
+                await semaphore.WaitAsync(token);
+                try
                 {
-                    try
-                    {
-                        await semaphore.WaitAsync(token);
-                        return await RunWorker(token);
-                    }
-                    finally
-                    {
-                        semaphore.Release();  
-                    }
+                    return await RunWorker(token);
                 }
-                , token);
-        }
-        
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
         var sums = await Task.WhenAll(tasks);
 
         return sums.Sum(); 
+    }
+
+    private async Task<long> ProcessChunkAsync(SemaphoreSlim semaphore, CancellationToken token)
+    {
+        try
+        {
+            await semaphore.WaitAsync(token);
+            return await RunWorker(token);
+        }
+        finally
+        {
+            semaphore.Release();  
+        }
     }
 
     private async Task<long> RunWorker(CancellationToken token)
