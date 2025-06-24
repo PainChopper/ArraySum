@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace ArraySum.SumStrategies;
 
-public class ThreadPoolArrayPoolBufferAsyncWorker : SortStrategy
+public class ThreadPoolArrayPoolBufferAsyncWorker : SumStrategy
 {
     private const int ArrayPoolBufferSize = 512 * 1024;
 
@@ -42,19 +42,6 @@ public class ThreadPoolArrayPoolBufferAsyncWorker : SortStrategy
         var sums = await Task.WhenAll(tasks);
 
         return sums.Sum(); 
-    }
-
-    private async Task<long> ProcessChunkAsync(SemaphoreSlim semaphore, CancellationToken token)
-    {
-        try
-        {
-            await semaphore.WaitAsync(token);
-            return await RunWorker(token);
-        }
-        finally
-        {
-            semaphore.Release();  
-        }
     }
 
     private async Task<long> RunWorker(CancellationToken token)

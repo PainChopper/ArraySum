@@ -1,6 +1,6 @@
 ﻿namespace ArraySum.SumStrategies;
 
-public abstract class SortStrategy
+public abstract class SumStrategy
 {
     protected readonly string FileName;
     protected readonly int ChunkSize;
@@ -9,7 +9,7 @@ public abstract class SortStrategy
     protected const int ElementSize = sizeof(int);
 
     
-    protected SortStrategy(string fileName)
+    protected SumStrategy(string fileName)
     {
         FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
         if (!File.Exists(fileName))
@@ -24,7 +24,7 @@ public abstract class SortStrategy
 
         ArrayLength = fileSize / ElementSize;
     }
-    protected SortStrategy(string fileName, int chunkSize, int numberOfWorkers) : this(fileName)
+    protected SumStrategy(string fileName, int chunkSize, int numberOfWorkers) : this(fileName)
     {
         
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(chunkSize);

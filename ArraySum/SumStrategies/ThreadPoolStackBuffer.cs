@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace ArraySum.SumStrategies;
 
-public class ThreadPoolStackBuffer : SortStrategy
+public class ThreadPoolStackBuffer : SumStrategy
 {
     private const int AvailableStackSize = 1_048_576 / 2; // 50% от размера стека процесса можно потратить на буферы
     

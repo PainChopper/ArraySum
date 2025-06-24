@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace ArraySum.SumStrategies;
 
-public class ThreadPoolArrayPoolBufferSyncWorker : SortStrategy
+public class ThreadPoolArrayPoolBufferSyncWorker : SumStrategy
 {
     private const int ArrayPoolBufferSize = 512 * 1024;
 

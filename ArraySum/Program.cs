@@ -6,12 +6,13 @@ using ArraySum.SumStrategies;
 
 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "../../../numbers.data");
 
-var strategies = new SortStrategy[]
+var strategies = new SumStrategy[]
 {
     // new SimpleBufferReader(filePath),
     new ThreadPoolStackBuffer(filePath, 100_000_000, Environment.ProcessorCount),
     new ThreadPoolArrayPoolBufferAsyncWorker(filePath, 100_000_000, Environment.ProcessorCount),    
-    new ThreadPoolArrayPoolBufferSyncWorker(filePath, 100_000_000, Environment.ProcessorCount)
+    new ThreadPoolArrayPoolBufferSyncWorker(filePath, 100_000_000, Environment.ProcessorCount),
+    new ChannelWorker(filePath,  512 * 1024, Environment.ProcessorCount)
 };
 
 

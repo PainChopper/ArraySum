@@ -3,7 +3,7 @@ namespace ArraySum.SumStrategies;
 /// <summary>
 /// Класс для наивного чтения и подсчета суммы чисел из бинарного файла
 /// </summary>
-public class SimpleBufferReader : SortStrategy
+public class SimpleBufferReader : SumStrategy
 {
     private readonly string _fileName;
 
